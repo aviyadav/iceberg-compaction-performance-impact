@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+
+# Ruff
+.ruff_cache/
+
+# Demo warehouses (recreated on every run)
+iceberg_lab_warehouse*/
