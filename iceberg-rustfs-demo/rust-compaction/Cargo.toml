@@ -1,0 +1,30 @@
+[package]
+name = "rust-compaction-demo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+iceberg-compaction-core = { git = "https://github.com/nimtable/iceberg-compaction.git" }
+# Use SQL (SQLite) catalog for local RustFS; rev must match the one
+# pinned by iceberg-compaction-core to avoid duplicate `iceberg` crates.
+iceberg-catalog-sql = { git = "https://github.com/risingwavelabs/iceberg-rust.git", rev = "9827e78518603afa21e44bd14ca0bdcb32294e46" }
+iceberg-storage-opendal = { git = "https://github.com/risingwavelabs/iceberg-rust.git", rev = "9827e78518603afa21e44bd14ca0bdcb32294e46", default-features = false, features = ["opendal-s3"] }
+sqlx = { version = "0.8", default-features = false, features = ["any", "runtime-tokio", "sqlite", "migrate"] }
+futures = "0.3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Full LTO + a single codegen unit re-optimizes the whole DataFusion/Arrow
+# graph serially on every release build (many minutes each time). Thin LTO
+# with parallel codegen units is dramatically faster with negligible runtime
+# difference for this IO-bound workload. Use `lto = false` for the fastest
+# possible release builds.
+[profile.release]
+lto = "thin"
+codegen-units = 16
+
+# Optimize dependencies (but not this crate) in debug builds. One-time cost,
+# cached afterwards; makes `cargo run` usable for DataFusion workloads, since
+# unoptimized DataFusion/Arrow is extremely slow at runtime.
+[profile.dev.package."*"]
+opt-level = 2

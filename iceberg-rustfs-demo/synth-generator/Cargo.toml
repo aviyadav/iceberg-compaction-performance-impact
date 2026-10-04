@@ -1,0 +1,12 @@
+[package]
+name = "synth-generator"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+iceberg = "0.10.1"
+iceberg-storage-opendal = { version = "0.10.1", default-features = false, features = ["opendal-s3"] }
+arrow = { version = "58" }
+parquet = { version = "58" }
+tokio = { version = "1", features = ["full"] }
+rand = "0.9"
